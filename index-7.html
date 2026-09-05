@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Тёплый пол — расчёт трубы</title>
+<meta name="theme-color" content="#16232f">
+<meta name="description" content="Расчёт длины трубы для тёплого пола по площади и шагу укладки, с историей расчётов и экспортом">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --bg:#0f1b26;
+    --bg-card:#16232f;
+    --bg-field:#1d2e3d;
+    --line:#2a3d4d;
+    --text:#eaf1f6;
+    --text-dim:#93a7b5;
+    --accent:#e8734a;
+    --accent-dim:#c85a35;
+    --accent-soft:rgba(232,115,74,0.14);
+    --ok:#4ab68a;
+    --danger:#e05c5c;
+    --font:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
+  }
+  [data-theme="light"]{
+    --bg:#f4f1ec;
+    --bg-card:#ffffff;
+    --bg-field:#f0ede6;
+    --line:#e0dbd0;
+    --text:#241f18;
+    --text-dim:#7a7266;
+    --accent:#c8562f;
+    --accent-dim:#a8451f;
+    --accent-soft:rgba(200,86,47,0.10);
+    --ok:#2f8c66;
+    --danger:#c23f3f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font);
+    min-height:100vh;
+    padding-bottom:50px;
+    transition:background .2s,color .2s;
+  }
+  header{
+    padding:22px 16px 16px;
+    background:linear-gradient(180deg, var(--bg-card) 0%, var(--bg) 100%);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .header-text{flex:1; min-width:0;}
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  h1{
+    font-size:21px;
+    font-weight:600;
+    margin:0 0 2px;
+    line-height:1.3;
+  }
+  .company-line{
+    font-size:12.5px;
+    color:var(--text-dim);
+    display:flex;
+    gap:6px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .company-line input{
+    background:none;
+    border:none;
+    border-bottom:1px dashed var(--line);
+    color:var(--text-dim);
+    font-size:12.5px;
+    font-family:var(--font);
+    padding:2px 0;
+    width:auto;
+    min-width:60px;
+  }
+  .company-line input:focus{outline:none; border-color:var(--accent);}
+  .icon-btn{
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:10px;
+    width:38px;
+    height:38px;
+    flex:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:17px;
+    color:var(--text);
+    cursor:pointer;
+  }
+  .header-btns{display:flex; gap:8px; flex:none;}
+
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.5);
+    z-index:100;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-sheet{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:18px 18px 0 0;
+    padding:18px 16px 26px;
+    width:100%;
+    max-width:520px;
+    max-height:80vh;
+    overflow-y:auto;
+  }
+  .modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+  }
+  .modal-head h3{margin:0; font-size:17px;}
+  .modal-sheet select{
+    width:100%;
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:11px 12px;
+    font-size:15px;
+    color:var(--text);
+    font-family:var(--font);
+  }
+  .pro-box{
+    margin-top:16px;
+    background:var(--accent-soft);
+    border:1px solid var(--accent-dim);
+    border-radius:14px;
+    padding:16px;
+    text-align:center;
+  }
+  .pro-title{margin:0 0 6px; font-size:16px; font-weight:700; color:var(--accent);}
+  .pro-desc{margin:0 0 14px; font-size:12.5px; color:var(--text-dim); line-height:1.5;}
+
+  .top-tabs{
+    max-width:520px;
+    margin:0 auto;
+    padding:12px 14px 0;
+    display:flex;
+    gap:7px;
+    overflow-x:auto;
+  }
+  .tab-btn{
+    flex:none;
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 13px;
+    font-size:13px;
+    color:var(--text-dim);
+    white-space:nowrap;
+    cursor:pointer;
+  }
+  .tab-btn.active{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent);
+    font-weight:600;
+  }
+  .soon-card{text-align:center; padding:44px 20px;}
+  .soon-icon{font-size:42px; margin-bottom:12px;}
+  .soon-text{color:var(--text-dim); font-size:14px; margin:0;}
+
+  main{
+    max-width:520px;
+    margin:0 auto;
+    padding:16px 14px 0;
+  }
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 14px;
+    margin-bottom:12px;
+  }
+  .card-title{
+    font-size:13px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--text-dim);
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:13.5px;
+    color:var(--text-dim);
+    margin-bottom:7px;
+    gap:6px;
+  }
+  label .lab-left{display:flex; align-items:center; gap:5px;}
+  label .hint{font-size:12px; color:var(--text-dim); opacity:0.75; white-space:nowrap;}
+  .tip-btn{
+    width:16px; height:16px; border-radius:50%;
+    background:var(--bg-field); border:1px solid var(--line);
+    color:var(--text-dim); font-size:11px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; flex:none;
+  }
+  .tip-text{
+    display:none;
+    font-size:12px;
+    color:var(--text-dim);
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:8px 10px;
+    margin:-4px 0 10px;
+    line-height:1.5;
+  }
+  .tip-text.show{display:block;}
+  input[type=number],input[type=text]{
+    width:100%;
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 13px;
+    font-size:16px;
+    color:var(--text);
+    font-family:var(--font);
+    -webkit-appearance:none;
+  }
+  input[type=number]:focus,input[type=text]:focus{outline:none; border-color:var(--accent);}
+  .step-row{display:flex; gap:7px; flex-wrap:wrap;}
+  .step-btn{
+    flex:1 1 auto;
+    min-width:48px;
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 5px;
+    color:var(--text-dim);
+    font-size:13.5px;
+    font-family:var(--font);
+    text-align:center;
+    cursor:pointer;
+  }
+  .step-btn.active{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent);
+    font-weight:600;
+  }
+  .diam-row{display:flex; gap:8px;}
+  .diam-btn{
+    flex:1;
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 6px;
+    color:var(--text-dim);
+    font-size:13.5px;
+    text-align:center;
+    cursor:pointer;
+  }
+  .diam-btn.active{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent);
+    font-weight:600;
+  }
+  .pattern-btn{
+    flex:1;
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 6px;
+    color:var(--text-dim);
+    font-size:13px;
+    text-align:center;
+    cursor:pointer;
+  }
+  .pattern-btn.active{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent);
+    font-weight:600;
+  }
+  .corner-btn{
+    flex:1;
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 4px;
+    color:var(--text-dim);
+    font-size:12.5px;
+    text-align:center;
+    cursor:pointer;
+  }
+  .corner-btn.active{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--accent);
+    font-weight:600;
+  }
+  .switch-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13.5px;
+    color:var(--text);
+    margin-bottom:10px;
+    cursor:pointer;
+  }
+  .switch-row input[type=checkbox]{
+    width:18px; height:18px; accent-color:var(--accent); flex:none;
+  }
+  .notch-field{
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px;
+    margin-top:2px;
+  }
+
+  .room-card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:10px;
+    position:relative;
+  }
+  .room-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .room-head input[type=text]{
+    flex:1;
+    background:none;
+    border:none;
+    border-bottom:1px solid var(--line);
+    border-radius:0;
+    padding:4px 0;
+    font-size:15px;
+    font-weight:600;
+  }
+  .room-head input[type=text]:focus{border-color:var(--accent);}
+  .room-del{
+    background:none;
+    border:none;
+    color:var(--danger);
+    font-size:18px;
+    cursor:pointer;
+    padding:2px 6px;
+    flex:none;
+  }
+  .room-row{display:flex; gap:8px;}
+  .room-row .field{flex:1; margin-bottom:10px;}
+  .room-sub{
+    margin-top:8px;
+    font-size:12.5px;
+    color:var(--text-dim);
+    display:flex;
+    justify-content:space-between;
+  }
+  .room-sub b{color:var(--accent); font-weight:600;}
+
+  .add-room-btn{
+    width:100%;
+    background:var(--bg-field);
+    border:1px dashed var(--line);
+    border-radius:12px;
+    padding:12px;
+    color:var(--accent);
+    font-size:14px;
+    font-weight:600;
+    font-family:var(--font);
+    cursor:pointer;
+    margin-bottom:12px;
+  }
+
+  .result-card{
+    background:linear-gradient(135deg, var(--accent-soft) 0%, var(--bg-card) 60%);
+    border:1px solid var(--accent-dim);
+    border-radius:14px;
+    padding:20px 16px;
+    margin-bottom:12px;
+  }
+  .result-label{font-size:13px; color:var(--text-dim); margin-bottom:4px;}
+  .result-value{font-size:34px; font-weight:600; color:var(--accent); line-height:1.1;}
+  .result-value span{font-size:17px; color:var(--text-dim); font-weight:400; margin-left:4px;}
+  .cost-value{font-size:16px; color:var(--text); margin-top:8px; font-weight:600;}
+  .loops-total{font-size:13px; color:var(--text-dim); margin-top:6px;}
+  .loops-total b{color:var(--text); font-weight:600;}
+  .breakdown{margin-top:14px; border-top:1px solid var(--line); padding-top:12px;}
+  .breakdown-row{
+    display:flex; justify-content:space-between;
+    font-size:13.5px; color:var(--text-dim); padding:4px 0;
+  }
+  .breakdown-row b{color:var(--text); font-weight:500;}
+
+  .action-row{display:flex; gap:8px; margin-bottom:12px;}
+  .action-btn{
+    flex:1;
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 8px;
+    color:var(--text);
+    font-size:13.5px;
+    font-weight:600;
+    font-family:var(--font);
+    text-align:center;
+    cursor:pointer;
+  }
+  .action-btn.primary{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+  [data-theme="light"] .action-btn.primary{color:#fff;}
+
+  .history-item{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+  .history-info{font-size:13px; color:var(--text-dim); line-height:1.5;}
+  .history-info b{color:var(--text); font-size:14px;}
+  .history-actions{display:flex; gap:6px; flex:none;}
+  .history-actions button{
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:6px 10px;
+    font-size:12px;
+    color:var(--text-dim);
+    cursor:pointer;
+  }
+  .history-actions button.del{color:var(--danger);}
+  .empty-note{
+    font-size:13px;
+    color:var(--text-dim);
+    text-align:center;
+    padding:14px;
+  }
+
+  .diagram-wrap{margin-top:10px;}
+  .diagram-wrap svg{width:100%; height:auto; display:block; border-radius:8px; background:var(--bg-field);}
+  .diagram-toggle{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:10px;
+    padding:9px 12px;
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:10px;
+    font-size:12.5px;
+    color:var(--text-dim);
+    cursor:pointer;
+  }
+  .diagram-toggle .chev{transition:transform .2s;}
+  .diagram-toggle .chev.open{transform:rotate(180deg);}
+  .loops-legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:8px;
+  }
+  .loop-chip{
+    font-size:11.5px;
+    color:var(--text-dim);
+    background:var(--bg-field);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:4px 9px 4px 7px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+  }
+  .loop-chip::before{
+    content:'';
+    width:8px; height:8px; border-radius:50%;
+    background:var(--c);
+    flex:none;
+  }
+  .badge-count{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:19px;
+    height:19px;
+    padding:0 5px;
+    background:var(--accent);
+    color:#fff;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:700;
+    margin-left:4px;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:11.5px;
+    padding:18px 16px;
+    line-height:1.6;
+  }
+
+  .install-banner{
+    display:none;
+    max-width:520px;
+    margin:0 auto 12px;
+    padding:12px 14px;
+    background:var(--accent-soft);
+    border:1px solid var(--accent-dim);
+    border-radius:12px;
+    font-size:13px;
+    color:var(--text);
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .install-banner.show{display:flex;}
+  .install-btn{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:8px 14px;
+    font-size:13px;
+    font-weight:600;
+    font-family:var(--font);
+    white-space:nowrap;
+    cursor:pointer;
+  }
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:24px;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--bg-card);
+    border:1px solid var(--accent);
+    color:var(--text);
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:13px;
+    opacity:0;
+    transition:opacity .2s, transform .2s;
+    pointer-events:none;
+    z-index:50;
+    max-width:90%;
+    text-align:center;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .section-toggle{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    margin-bottom:12px;
+  }
+  .section-toggle h2{font-size:15px; margin:0;}
+  .section-toggle .chev{color:var(--text-dim); font-size:13px; transition:transform .2s;}
+  .section-toggle .chev.open{transform:rotate(180deg);}
+  .collapsible{display:none;}
+  .collapsible.open{display:block;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-text">
+    <p class="eyebrow" data-i18n="eyebrow">Тёплый пол</p>
+    <h1 id="companyName" data-i18n="headerTitle">Расчёт длины трубы</h1>
+    <div class="company-line">
+      <span data-i18n="companyLabel">Компания:</span>
+      <input type="text" id="companyInput" placeholder="не указано" data-i18n-placeholder="companyPh">
+      <span>·</span>
+      <input type="text" id="phoneInput" placeholder="телефон" data-i18n-placeholder="phonePh">
+    </div>
+  </div>
+  <div class="header-btns">
+    <button class="icon-btn" id="settingsBtn" title="Настройки">⚙️</button>
+    <button class="icon-btn" id="themeToggle" title="Сменить тему">🌙</button>
+  </div>
+</header>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-sheet">
+    <div class="modal-head">
+      <h3 data-i18n="settingsTitle">Настройки</h3>
+      <button class="icon-btn" id="closeSettings">✕</button>
+    </div>
+    <div class="field">
+      <label data-i18n="langLabel">Язык интерфейса</label>
+      <select id="langSelect">
+        <option value="ru">Русский</option>
+        <option value="en">English</option>
+        <option value="tr">Türkçe</option>
+        <option value="fr">Français</option>
+        <option value="es">Español</option>
+      </select>
+    </div>
+    <div class="pro-box">
+      <p class="pro-title">🚀 Thermoline Pro</p>
+      <p class="pro-desc" data-i18n="proDesc">Радиаторы, котлы, расчёт мощности отопления и больше возможностей — скоро</p>
+      <button class="action-btn" disabled style="opacity:0.5;" data-i18n="proSoon">Скоро будет доступно</button>
+    </div>
+  </div>
+</div>
+
+<div class="install-banner" id="installBanner">
+  <span data-i18n="installBanner">Установите приложение на телефон</span>
+  <button class="install-btn" id="installBtn" data-i18n="installBtn">Установить</button>
+</div>
+
+<div class="top-tabs" id="topTabs">
+  <div class="tab-btn active" data-tab="pipes"><span data-i18n="tabPipes">🔧 Трубы</span></div>
+  <div class="tab-btn" data-tab="radiators"><span data-i18n="tabRadiators">🌡️ Радиаторы</span></div>
+  <div class="tab-btn" data-tab="boilers"><span data-i18n="tabBoilers">🔥 Котлы</span></div>
+  <div class="tab-btn" data-tab="power"><span data-i18n="tabPower">⚡ Мощность</span></div>
+</div>
+
+<div class="tab-soon" id="tabSoon" style="display:none;">
+  <div class="card soon-card">
+    <div class="soon-icon">🚧</div>
+    <p class="soon-text" data-i18n="soonText">Этот раздел скоро появится в Thermoline Pro</p>
+  </div>
+</div>
+
+<main id="pipesSection">
+
+
+  <div class="card">
+    <p class="card-title" data-i18n="generalSettings">⚙️ Общие настройки</p>
+
+    <div class="field">
+      <label><span class="lab-left"><span data-i18n="pipeDiameter">Диаметр трубы</span> <span class="tip-btn" data-tip="tip-diam">?</span></span> <span class="hint">мм</span></label>
+      <div class="tip-text" id="tip-diam" data-i18n="tipDiam">Влияет на рекомендуемую макс. длину контура: 16 мм — обычно до 80–100 м, 20 мм — до 100–120 м.</div>
+      <div class="diam-row" id="diamRow">
+        <div class="diam-btn active" data-diam="16">16 <span data-i18n="mmUnit">мм</span></div>
+        <div class="diam-btn" data-diam="20">20 <span data-i18n="mmUnit">мм</span></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label><span class="lab-left"><span data-i18n="marginLabel">Запас на изгибы</span> <span class="tip-btn" data-tip="tip-margin">?</span></span> <span class="hint">%</span></label>
+      <div class="tip-text" id="tip-margin" data-i18n="tipMargin">Дополнительная длина трубы на изгибы, обход препятствий и подключение. Обычно 5–10%.</div>
+      <input type="number" id="margin" inputmode="decimal" value="10" min="0" step="1">
+    </div>
+
+    <div class="field">
+      <label><span data-i18n="priceLabel">Цена за метр трубы</span> <span class="hint" data-i18n="priceHint">₽/м, необязательно</span></label>
+      <input type="number" id="price" inputmode="decimal" placeholder="0" min="0" step="1">
+    </div>
+  </div>
+
+  <div id="roomsContainer"></div>
+
+  <button class="add-room-btn" id="addRoomBtn" data-i18n="addRoomBtn">+ Добавить помещение</button>
+
+  <div class="result-card">
+    <div class="result-label" data-i18n="totalNeeded">Итого трубы нужно</div>
+    <div class="result-value" id="totalResult">0<span>м</span></div>
+    <div class="loops-total" id="loopsTotal" style="display:none;"></div>
+    <div class="cost-value" id="costResult" style="display:none;"></div>
+
+    <div class="breakdown" id="roomsBreakdown"></div>
+  </div>
+
+  <div class="action-row">
+    <div class="action-btn primary" id="saveBtn" data-i18n="saveBtn">💾 Сохранить</div>
+    <div class="action-btn" id="shareTextBtn" data-i18n="shareTextBtn">📝 Текстом</div>
+    <div class="action-btn" id="shareImageBtn" data-i18n="shareImageBtn">🖼 Картинкой</div>
+  </div>
+
+  <div class="card">
+    <div class="section-toggle" id="historyToggle">
+      <h2><span data-i18n="historyTitle">📋 История расчётов</span><span class="badge-count" id="historyCount" style="display:none;"></span></h2>
+      <span class="chev" id="historyChev">▾</span>
+    </div>
+    <div class="collapsible" id="historyBox">
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer data-i18n="footerText">
+  Расчёт приблизительный. Для точного проекта учитывайте реальную геометрию помещения и рекомендации производителя трубы.
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ---------- State ----------
+  const STORAGE_KEY = 'teplyPolState';
+  const HISTORY_KEY = 'teplyPolHistory';
+  const THEME_KEY = 'teplyPolTheme';
+  const LANG_KEY = 'teplyPolLang';
+
+  const I18N = {
+    ru: {
+      eyebrow: 'Тёплый пол', headerTitle: 'Расчёт длины трубы',
+      companyLabel: 'Компания:', companyPh: 'не указано', phonePh: 'телефон',
+      settingsTitle: 'Настройки', langLabel: 'Язык интерфейса',
+      proDesc: 'Радиаторы, котлы, расчёт мощности отопления и больше возможностей — скоро',
+      proSoon: 'Скоро будет доступно',
+      installBanner: 'Установите приложение на телефон', installBtn: 'Установить',
+      tabPipes: '🔧 Трубы', tabRadiators: '🌡️ Радиаторы', tabBoilers: '🔥 Котлы', tabPower: '⚡ Мощность',
+      soonText: 'Этот раздел скоро появится в Thermoline Pro',
+      generalSettings: '⚙️ Общие настройки', pipeDiameter: 'Диаметр трубы',
+      tipDiam: 'Влияет на рекомендуемую макс. длину контура: 16 мм — обычно до 80–100 м, 20 мм — до 100–120 м.',
+      mmUnit: 'мм', marginLabel: 'Запас на изгибы',
+      tipMargin: 'Дополнительная длина трубы на изгибы, обход препятствий и подключение. Обычно 5–10%.',
+      priceLabel: 'Цена за метр трубы', priceHint: '₽/м, необязательно',
+      addRoomBtn: '+ Добавить помещение', totalNeeded: 'Итого трубы нужно',
+      saveBtn: '💾 Сохранить', shareTextBtn: '📝 Текстом', shareImageBtn: '🖼 Картинкой',
+      historyTitle: '📋 История расчётов',
+      footerText: 'Расчёт приблизительный. Для точного проекта учитывайте реальную геометрию помещения и рекомендации производителя трубы.',
+      areaLabel: 'Площадь', roomNamePh: 'Название помещения',
+      exactDims: 'Точные размеры',
+      tipDims: 'Если укажешь ширину и длину, площадь посчитается сама, а схема укладки будет нарисована в реальных пропорциях комнаты.',
+      mNoOblig: 'м, необязательно', widthPh: 'ширина', lengthPh: 'длина',
+      notchLabel: 'Вырез в углу',
+      tipNotch: 'Для ниши, кладовки или встроенного шкафа в углу — включи вырез и укажи его размеры, площадь и схема пересчитаются. Для выступа наружу (эркер, пристройка) проще добавить его отдельным помещением в списке.',
+      hasNotch: 'Есть вырез в углу',
+      cornerTL: '↖ верх-лево', cornerTR: '↗ верх-право', cornerBL: '↙ низ-лево', cornerBR: '↘ низ-право',
+      notchWidthPh: 'ширина выреза', notchLengthPh: 'глубина выреза',
+      stepLabel: 'Шаг укладки', cmUnit: 'см',
+      customStepLabel: 'Своё значение шага', customStepPh: 'точный шаг',
+      patternLabel: 'Рисунок укладки', patternMeander: '🐍 Змейка', patternSpiral: '🐌 Улитка',
+      manifoldLabel: 'До коллектора', mUnit: 'м', areaUnit: 'м²', maxLoopLabel: 'Макс. контур',
+      diagramToggleLabel: 'Схема укладки', defaultRoomName: 'Комната',
+      allTotal: 'Всего', contourLabel: 'Контур',
+      loop_one: 'контур', loops_few: 'контура', loops_many: 'контуров',
+      historyOpenBtn: 'Открыть', historyEmpty: 'Сохранённых расчётов пока нет', historyNoName: 'Без названия',
+      confirmDeleteProject: 'Удалить этот сохранённый проект? Это действие нельзя отменить.',
+      toastProjectDeleted: 'Проект удалён', toastFillArea: 'Заполните площадь хотя бы одного помещения',
+      promptProjectName: 'Название проекта', defaultProjectName: 'Проект',
+      toastCalcSaved: 'Расчёт сохранён', toastCalcLoaded: 'Расчёт загружен',
+      toastCopied: 'Скопировано в буфер обмена', toastCopyFailed: 'Не удалось скопировать',
+      toastImageSaved: 'Изображение сохранено', toastImageFailed: 'Не удалось создать изображение',
+      shareTitle: 'Расчёт тёплого пола', shareTotalLabel: 'Итого:', shareCostLabel: 'Стоимость трубы: ≈',
+      roomWord: 'помещ.'
+    },
+    en: {
+      eyebrow: 'Underfloor heating', headerTitle: 'Pipe length calculator',
+      companyLabel: 'Company:', companyPh: 'not set', phonePh: 'phone',
+      settingsTitle: 'Settings', langLabel: 'Interface language',
+      proDesc: 'Radiators, boilers, heat load calculation and more — coming soon',
+      proSoon: 'Coming soon',
+      installBanner: 'Install the app on your phone', installBtn: 'Install',
+      tabPipes: '🔧 Pipes', tabRadiators: '🌡️ Radiators', tabBoilers: '🔥 Boilers', tabPower: '⚡ Heat load',
+      soonText: 'This section is coming soon in Thermoline Pro',
+      generalSettings: '⚙️ General settings', pipeDiameter: 'Pipe diameter',
+      tipDiam: 'Affects the recommended max loop length: 16 mm — usually up to 80–100 m, 20 mm — up to 100–120 m.',
+      mmUnit: 'mm', marginLabel: 'Bend allowance',
+      tipMargin: 'Extra pipe length for bends, obstacles and connections. Usually 5–10%.',
+      priceLabel: 'Price per meter of pipe', priceHint: 'per m, optional',
+      addRoomBtn: '+ Add room', totalNeeded: 'Total pipe needed',
+      saveBtn: '💾 Save', shareTextBtn: '📝 As text', shareImageBtn: '🖼 As image',
+      historyTitle: '📋 Calculation history',
+      footerText: 'This is an approximate calculation. For an exact project, account for the real room geometry and the pipe manufacturer\'s recommendations.',
+      areaLabel: 'Area', roomNamePh: 'Room name',
+      exactDims: 'Exact dimensions',
+      tipDims: 'Enter width and length to auto-calculate the area, and the layout diagram will be drawn to the room\'s real proportions.',
+      mNoOblig: 'm, optional', widthPh: 'width', lengthPh: 'length',
+      notchLabel: 'Corner cut-out',
+      tipNotch: 'For a niche, closet or built-in wardrobe in a corner — turn this on and set its size, the area and diagram will update. For a bump-out (bay window, extension), it\'s easier to add it as a separate room in the list.',
+      hasNotch: 'Has a corner cut-out',
+      cornerTL: '↖ top-left', cornerTR: '↗ top-right', cornerBL: '↙ bottom-left', cornerBR: '↘ bottom-right',
+      notchWidthPh: 'cut-out width', notchLengthPh: 'cut-out depth',
+      stepLabel: 'Pipe spacing', cmUnit: 'cm',
+      customStepLabel: 'Custom spacing', customStepPh: 'exact spacing',
+      patternLabel: 'Layout pattern', patternMeander: '🐍 Serpentine', patternSpiral: '🐌 Spiral',
+      manifoldLabel: 'Distance to manifold', mUnit: 'm', areaUnit: 'm²', maxLoopLabel: 'Max loop length',
+      diagramToggleLabel: 'Layout diagram', defaultRoomName: 'Room',
+      allTotal: 'Total', contourLabel: 'Loop',
+      loop_one: 'loop', loops_few: 'loops', loops_many: 'loops',
+      historyOpenBtn: 'Open', historyEmpty: 'No saved calculations yet', historyNoName: 'Untitled',
+      confirmDeleteProject: 'Delete this saved project? This cannot be undone.',
+      toastProjectDeleted: 'Project deleted', toastFillArea: 'Fill in the area of at least one room',
+      promptProjectName: 'Project name', defaultProjectName: 'Project',
+      toastCalcSaved: 'Calculation saved', toastCalcLoaded: 'Calculation loaded',
+      toastCopied: 'Copied to clipboard', toastCopyFailed: 'Could not copy',
+      toastImageSaved: 'Image saved', toastImageFailed: 'Could not create image',
+      shareTitle: 'Underfloor heating calculation', shareTotalLabel: 'Total:', shareCostLabel: 'Pipe cost: ≈',
+      roomWord: 'room(s)'
+    },
+    tr: {
+      eyebrow: 'Yerden ısıtma', headerTitle: 'Boru uzunluğu hesaplama',
+      companyLabel: 'Firma:', companyPh: 'belirtilmedi', phonePh: 'telefon',
+      settingsTitle: 'Ayarlar', langLabel: 'Arayüz dili',
+      proDesc: 'Radyatörler, kombiler, ısı yükü hesabı ve daha fazlası — yakında',
+      proSoon: 'Yakında',
+      installBanner: 'Uygulamayı telefonuna yükle', installBtn: 'Yükle',
+      tabPipes: '🔧 Borular', tabRadiators: '🌡️ Radyatörler', tabBoilers: '🔥 Kombiler', tabPower: '⚡ Isı yükü',
+      soonText: 'Bu bölüm Thermoline Pro\'da yakında geliyor',
+      generalSettings: '⚙️ Genel ayarlar', pipeDiameter: 'Boru çapı',
+      tipDiam: 'Önerilen maks. devre uzunluğunu etkiler: 16 mm — genelde 80–100 m, 20 mm — 100–120 m\'ye kadar.',
+      mmUnit: 'mm', marginLabel: 'Bükülme payı',
+      tipMargin: 'Bükülmeler, engeller ve bağlantılar için ek boru uzunluğu. Genelde %5–10.',
+      priceLabel: 'Metre başına boru fiyatı', priceHint: '/m, opsiyonel',
+      addRoomBtn: '+ Oda ekle', totalNeeded: 'Gereken toplam boru',
+      saveBtn: '💾 Kaydet', shareTextBtn: '📝 Metin olarak', shareImageBtn: '🖼 Görsel olarak',
+      historyTitle: '📋 Hesap geçmişi',
+      footerText: 'Bu yaklaşık bir hesaplamadır. Kesin bir proje için gerçek oda geometrisini ve boru üreticisinin önerilerini dikkate alın.',
+      areaLabel: 'Alan', roomNamePh: 'Oda adı',
+      exactDims: 'Tam ölçüler',
+      tipDims: 'Genişlik ve uzunluğu girersen alan otomatik hesaplanır, döşeme şeması odanın gerçek oranlarıyla çizilir.',
+      mNoOblig: 'm, opsiyonel', widthPh: 'genişlik', lengthPh: 'uzunluk',
+      notchLabel: 'Köşe kesintisi',
+      tipNotch: 'Köşedeki bir niş, kiler veya gömme dolap için — bunu aç ve boyutlarını gir, alan ve şema güncellenir. Dışa çıkıntı (cumba, ek yapı) için listeye ayrı bir oda olarak eklemek daha kolaydır.',
+      hasNotch: 'Köşe kesintisi var',
+      cornerTL: '↖ üst-sol', cornerTR: '↗ üst-sağ', cornerBL: '↙ alt-sol', cornerBR: '↘ alt-sağ',
+      notchWidthPh: 'kesinti genişliği', notchLengthPh: 'kesinti derinliği',
+      stepLabel: 'Boru aralığı', cmUnit: 'cm',
+      customStepLabel: 'Özel aralık', customStepPh: 'tam aralık',
+      patternLabel: 'Döşeme deseni', patternMeander: '🐍 Yılan', patternSpiral: '🐌 Salyangoz',
+      manifoldLabel: 'Kolektöre mesafe', mUnit: 'm', areaUnit: 'm²', maxLoopLabel: 'Maks. devre uzunluğu',
+      diagramToggleLabel: 'Döşeme şeması', defaultRoomName: 'Oda',
+      allTotal: 'Toplam', contourLabel: 'Devre',
+      loop_one: 'devre', loops_few: 'devre', loops_many: 'devre',
+      historyOpenBtn: 'Aç', historyEmpty: 'Henüz kayıtlı hesap yok', historyNoName: 'İsimsiz',
+      confirmDeleteProject: 'Bu kayıtlı proje silinsin mi? Bu işlem geri alınamaz.',
+      toastProjectDeleted: 'Proje silindi', toastFillArea: 'En az bir odanın alanını girin',
+      promptProjectName: 'Proje adı', defaultProjectName: 'Proje',
+      toastCalcSaved: 'Hesap kaydedildi', toastCalcLoaded: 'Hesap yüklendi',
+      toastCopied: 'Panoya kopyalandı', toastCopyFailed: 'Kopyalanamadı',
+      toastImageSaved: 'Görsel kaydedildi', toastImageFailed: 'Görsel oluşturulamadı',
+      shareTitle: 'Yerden ısıtma hesabı', shareTotalLabel: 'Toplam:', shareCostLabel: 'Boru maliyeti: ≈',
+      roomWord: 'oda'
+    },
+    fr: {
+      eyebrow: 'Plancher chauffant', headerTitle: 'Calcul de la longueur de tuyau',
+      companyLabel: 'Entreprise :', companyPh: 'non renseigné', phonePh: 'téléphone',
+      settingsTitle: 'Paramètres', langLabel: 'Langue de l\'interface',
+      proDesc: 'Radiateurs, chaudières, calcul de puissance et plus — bientôt disponible',
+      proSoon: 'Bientôt disponible',
+      installBanner: 'Installez l\'application sur votre téléphone', installBtn: 'Installer',
+      tabPipes: '🔧 Tuyaux', tabRadiators: '🌡️ Radiateurs', tabBoilers: '🔥 Chaudières', tabPower: '⚡ Puissance',
+      soonText: 'Cette section arrive bientôt dans Thermoline Pro',
+      generalSettings: '⚙️ Paramètres généraux', pipeDiameter: 'Diamètre du tuyau',
+      tipDiam: 'Influence la longueur max. recommandée d\'une boucle : 16 mm — généralement jusqu\'à 80–100 m, 20 mm — jusqu\'à 100–120 m.',
+      mmUnit: 'mm', marginLabel: 'Marge pour coudes',
+      tipMargin: 'Longueur de tuyau supplémentaire pour les coudes, obstacles et raccordements. Généralement 5–10 %.',
+      priceLabel: 'Prix au mètre de tuyau', priceHint: '/m, facultatif',
+      addRoomBtn: '+ Ajouter une pièce', totalNeeded: 'Longueur de tuyau totale',
+      saveBtn: '💾 Enregistrer', shareTextBtn: '📝 En texte', shareImageBtn: '🖼 En image',
+      historyTitle: '📋 Historique des calculs',
+      footerText: 'Ce calcul est approximatif. Pour un projet précis, tenez compte de la géométrie réelle de la pièce et des recommandations du fabricant du tuyau.',
+      areaLabel: 'Surface', roomNamePh: 'Nom de la pièce',
+      exactDims: 'Dimensions exactes',
+      tipDims: 'Si vous indiquez la largeur et la longueur, la surface sera calculée automatiquement et le schéma sera dessiné aux proportions réelles de la pièce.',
+      mNoOblig: 'm, facultatif', widthPh: 'largeur', lengthPh: 'longueur',
+      notchLabel: 'Découpe d\'angle',
+      tipNotch: 'Pour une niche, un placard ou un meuble encastré dans un angle — activez ceci et indiquez ses dimensions, la surface et le schéma seront recalculés. Pour une avancée vers l\'extérieur (bow-window, extension), il est plus simple de l\'ajouter comme pièce séparée dans la liste.',
+      hasNotch: 'Il y a une découpe d\'angle',
+      cornerTL: '↖ haut-gauche', cornerTR: '↗ haut-droite', cornerBL: '↙ bas-gauche', cornerBR: '↘ bas-droite',
+      notchWidthPh: 'largeur de la découpe', notchLengthPh: 'profondeur de la découpe',
+      stepLabel: 'Pas de pose', cmUnit: 'cm',
+      customStepLabel: 'Pas personnalisé', customStepPh: 'pas exact',
+      patternLabel: 'Motif de pose', patternMeander: '🐍 Serpentin', patternSpiral: '🐌 Spirale',
+      manifoldLabel: 'Distance au collecteur', mUnit: 'm', areaUnit: 'm²', maxLoopLabel: 'Longueur max. de boucle',
+      diagramToggleLabel: 'Schéma de pose', defaultRoomName: 'Pièce',
+      allTotal: 'Total', contourLabel: 'Boucle',
+      loop_one: 'boucle', loops_few: 'boucles', loops_many: 'boucles',
+      historyOpenBtn: 'Ouvrir', historyEmpty: 'Aucun calcul enregistré pour le moment', historyNoName: 'Sans titre',
+      confirmDeleteProject: 'Supprimer ce projet enregistré ? Cette action est irréversible.',
+      toastProjectDeleted: 'Projet supprimé', toastFillArea: 'Renseignez la surface d\'au moins une pièce',
+      promptProjectName: 'Nom du projet', defaultProjectName: 'Projet',
+      toastCalcSaved: 'Calcul enregistré', toastCalcLoaded: 'Calcul chargé',
+      toastCopied: 'Copié dans le presse-papiers', toastCopyFailed: 'Échec de la copie',
+      toastImageSaved: 'Image enregistrée', toastImageFailed: 'Impossible de créer l\'image',
+      shareTitle: 'Calcul de plancher chauffant', shareTotalLabel: 'Total :', shareCostLabel: 'Coût du tuyau : ≈',
+      roomWord: 'pièce(s)'
+    },
+    es: {
+      eyebrow: 'Suelo radiante', headerTitle: 'Cálculo de longitud de tubería',
+      companyLabel: 'Empresa:', companyPh: 'no indicado', phonePh: 'teléfono',
+      settingsTitle: 'Ajustes', langLabel: 'Idioma de la interfaz',
+      proDesc: 'Radiadores, calderas, cálculo de potencia de calefacción y más — próximamente',
+      proSoon: 'Próximamente',
+      installBanner: 'Instala la aplicación en tu teléfono', installBtn: 'Instalar',
+      tabPipes: '🔧 Tuberías', tabRadiators: '🌡️ Radiadores', tabBoilers: '🔥 Calderas', tabPower: '⚡ Potencia',
+      soonText: 'Esta sección llegará pronto a Thermoline Pro',
+      generalSettings: '⚙️ Ajustes generales', pipeDiameter: 'Diámetro de tubería',
+      tipDiam: 'Afecta a la longitud máx. recomendada del circuito: 16 mm — normalmente hasta 80–100 m, 20 mm — hasta 100–120 m.',
+      mmUnit: 'mm', marginLabel: 'Margen para curvas',
+      tipMargin: 'Longitud adicional de tubería para curvas, obstáculos y conexiones. Normalmente 5–10%.',
+      priceLabel: 'Precio por metro de tubería', priceHint: '/m, opcional',
+      addRoomBtn: '+ Añadir habitación', totalNeeded: 'Tubería total necesaria',
+      saveBtn: '💾 Guardar', shareTextBtn: '📝 Como texto', shareImageBtn: '🖼 Como imagen',
+      historyTitle: '📋 Historial de cálculos',
+      footerText: 'Este cálculo es aproximado. Para un proyecto exacto, ten en cuenta la geometría real de la habitación y las recomendaciones del fabricante de la tubería.',
+      areaLabel: 'Superficie', roomNamePh: 'Nombre de la habitación',
+      exactDims: 'Dimensiones exactas',
+      tipDims: 'Si indicas el ancho y el largo, la superficie se calculará sola y el esquema se dibujará con las proporciones reales de la habitación.',
+      mNoOblig: 'm, opcional', widthPh: 'ancho', lengthPh: 'largo',
+      notchLabel: 'Recorte en la esquina',
+      tipNotch: 'Para un nicho, trastero o armario empotrado en una esquina — actívalo e indica sus medidas, la superficie y el esquema se recalcularán. Para un saliente hacia fuera (mirador, ampliación), es más fácil añadirlo como una habitación aparte en la lista.',
+      hasNotch: 'Tiene un recorte en la esquina',
+      cornerTL: '↖ arriba-izq.', cornerTR: '↗ arriba-der.', cornerBL: '↙ abajo-izq.', cornerBR: '↘ abajo-der.',
+      notchWidthPh: 'ancho del recorte', notchLengthPh: 'profundidad del recorte',
+      stepLabel: 'Paso de instalación', cmUnit: 'cm',
+      customStepLabel: 'Paso personalizado', customStepPh: 'paso exacto',
+      patternLabel: 'Patrón de instalación', patternMeander: '🐍 Serpentina', patternSpiral: '🐌 Espiral',
+      manifoldLabel: 'Distancia al colector', mUnit: 'm', areaUnit: 'm²', maxLoopLabel: 'Longitud máx. del circuito',
+      diagramToggleLabel: 'Esquema de instalación', defaultRoomName: 'Habitación',
+      allTotal: 'Total', contourLabel: 'Circuito',
+      loop_one: 'circuito', loops_few: 'circuitos', loops_many: 'circuitos',
+      historyOpenBtn: 'Abrir', historyEmpty: 'Aún no hay cálculos guardados', historyNoName: 'Sin nombre',
+      confirmDeleteProject: '¿Eliminar este proyecto guardado? Esta acción no se puede deshacer.',
+      toastProjectDeleted: 'Proyecto eliminado', toastFillArea: 'Rellena la superficie de al menos una habitación',
+      promptProjectName: 'Nombre del proyecto', defaultProjectName: 'Proyecto',
+      toastCalcSaved: 'Cálculo guardado', toastCalcLoaded: 'Cálculo cargado',
+      toastCopied: 'Copiado al portapapeles', toastCopyFailed: 'No se pudo copiar',
+      toastImageSaved: 'Imagen guardada', toastImageFailed: 'No se pudo crear la imagen',
+      shareTitle: 'Cálculo de suelo radiante', shareTotalLabel: 'Total:', shareCostLabel: 'Coste de tubería: ≈',
+      roomWord: 'hab.'
+    }
+  };
+
+  function t(key, vars){
+    const lang = (state && state.lang) || 'ru';
+    let str = (I18N[lang] && I18N[lang][key] !== undefined) ? I18N[lang][key] : (I18N.ru[key] !== undefined ? I18N.ru[key] : key);
+    if(vars){
+      Object.keys(vars).forEach(k => { str = str.replace('{' + k + '}', vars[k]); });
+    }
+    return str;
+  }
+
+  function applyLanguage(lang){
+    state.lang = lang;
+    persist();
+    document.documentElement.setAttribute('lang', lang);
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = t(el.getAttribute('data-i18n'));
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+    });
+    const langSelectEl = document.getElementById('langSelect');
+    if(langSelectEl) langSelectEl.value = lang;
+    renderRooms();
+    calculate();
+    renderHistory();
+  }
+
+  let state = {
+    diameter: 16,
+    margin: 10,
+    price: 0,
+    company: '',
+    phone: '',
+    lang: localStorage.getItem(LANG_KEY) || 'ru',
+    rooms: [
+      { id: cryptoId(), name: '', area: '', step: 15, customStep: '', manifold: 0, maxLoop: 100, width: '', length: '', pattern: 'meander', notchEnabled: false, notchCorner: 'tl', notchWidth: '', notchLength: '' }
+    ]
+  };
+
+  function cryptoId(){
+    return 'r' + Math.random().toString(36).slice(2, 9);
+  }
+
+  // ---------- Load saved state ----------
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.rooms && parsed.rooms.length) state = parsed;
+    }
+  } catch(e){}
+  if(!state.lang) state.lang = localStorage.getItem(LANG_KEY) || 'ru';
+
+  document.getElementById('companyInput').value = state.company || '';
+  document.getElementById('phoneInput').value = state.phone || '';
+  document.getElementById('margin').value = state.margin;
+  document.getElementById('price').value = state.price || '';
+
+  // theme
+  const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+  applyTheme(savedTheme);
+
+  function applyTheme(t){
+    if(t === 'light'){
+      document.documentElement.setAttribute('data-theme','light');
+      document.getElementById('themeToggle').textContent = '☀️';
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      document.getElementById('themeToggle').textContent = '🌙';
+    }
+    localStorage.setItem(THEME_KEY, t);
+  }
+
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    applyTheme(cur === 'light' ? 'dark' : 'light');
+  });
+
+  // settings modal
+  const settingsModal = document.getElementById('settingsModal');
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    settingsModal.classList.add('show');
+  });
+  document.getElementById('closeSettings').addEventListener('click', () => {
+    settingsModal.classList.remove('show');
+  });
+  settingsModal.addEventListener('click', (e) => {
+    if(e.target === settingsModal) settingsModal.classList.remove('show');
+  });
+  document.getElementById('langSelect').addEventListener('change', (e) => {
+    applyLanguage(e.target.value);
+  });
+
+  // top tabs
+  const pipesSection = document.getElementById('pipesSection');
+  const tabSoon = document.getElementById('tabSoon');
+  document.getElementById('topTabs').addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab-btn');
+    if(!btn) return;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if(btn.dataset.tab === 'pipes'){
+      pipesSection.style.display = '';
+      tabSoon.style.display = 'none';
+    } else {
+      pipesSection.style.display = 'none';
+      tabSoon.style.display = 'block';
+    }
+  });
+
+  // diameter buttons
+  document.getElementById('diamRow').addEventListener('click', (e) => {
+    const btn = e.target.closest('.diam-btn');
+    if(!btn) return;
+    document.querySelectorAll('.diam-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.diameter = parseInt(btn.dataset.diam);
+    // adjust default maxLoop suggestion for rooms that still have defaults
+    const suggested = state.diameter === 16 ? 90 : 110;
+    state.rooms.forEach(r => {
+      if (r.maxLoop === 100 || r.maxLoop === 90 || r.maxLoop === 110) r.maxLoop = suggested;
+    });
+    persist();
+    renderRooms();
+    calculate();
+  });
+
+  document.getElementById('margin').addEventListener('input', (e) => {
+    state.margin = parseFloat(e.target.value) || 0;
+    persist(); calculate();
+  });
+  document.getElementById('price').addEventListener('input', (e) => {
+    state.price = parseFloat(e.target.value) || 0;
+    persist(); calculate();
+  });
+  document.getElementById('companyInput').addEventListener('input', (e) => {
+    state.company = e.target.value;
+    persist();
+  });
+  document.getElementById('phoneInput').addEventListener('input', (e) => {
+    state.phone = e.target.value;
+    persist();
+  });
+
+  // tooltips
+  document.addEventListener('click', (e) => {
+    const tipBtn = e.target.closest('.tip-btn');
+    if(tipBtn){
+      const el = document.getElementById(tipBtn.dataset.tip);
+      if(el) el.classList.toggle('show');
+      return;
+    }
+  });
+
+  // ---------- Rooms rendering ----------
+  const roomsContainer = document.getElementById('roomsContainer');
+
+  function renderRooms(){
+    roomsContainer.innerHTML = '';
+    state.rooms.forEach((room, idx) => {
+      const div = document.createElement('div');
+      div.className = 'room-card';
+      div.dataset.id = room.id;
+      const namePh = t('defaultRoomName') + ' ' + (idx + 1);
+      div.innerHTML = `
+        <div class="room-head">
+          <input type="text" class="room-name" value="${escapeHtml(room.name)}" placeholder="${namePh}">
+          ${state.rooms.length > 1 ? '<button class="room-del" data-action="del">✕</button>' : ''}
+        </div>
+        <div class="room-row">
+          <div class="field">
+            <label>${t('areaLabel')} <span class="hint">${t('areaUnit')}</span></label>
+            <input type="number" class="room-area" inputmode="decimal" placeholder="18" min="0" step="0.1" value="${room.area}" ${room.width && room.length ? 'disabled' : ''}>
+          </div>
+        </div>
+        <div class="field">
+          <label><span class="lab-left">${t('exactDims')} <span class="tip-btn" data-tip="tip-dims-${room.id}">?</span></span> <span class="hint">${t('mNoOblig')}</span></label>
+          <div class="tip-text" id="tip-dims-${room.id}">${t('tipDims')}</div>
+          <div class="room-row">
+            <div class="field" style="margin-bottom:0;">
+              <input type="number" class="room-width" inputmode="decimal" placeholder="${t('widthPh')}" min="0" step="0.1" value="${room.width || ''}">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <input type="number" class="room-length" inputmode="decimal" placeholder="${t('lengthPh')}" min="0" step="0.1" value="${room.length || ''}">
+            </div>
+          </div>
+        </div>
+        <div class="field notch-field" data-notch-field style="display:${(room.width && room.length) ? 'block':'none'}">
+          <label><span class="lab-left">${t('notchLabel')} <span class="tip-btn" data-tip="tip-notch-${room.id}">?</span></span></label>
+          <div class="tip-text" id="tip-notch-${room.id}">${t('tipNotch')}</div>
+          <label class="switch-row">
+            <input type="checkbox" class="room-notch-toggle" ${room.notchEnabled ? 'checked':''}>
+            <span>${t('hasNotch')}</span>
+          </label>
+          <div class="notch-details" data-notch-details style="display:${room.notchEnabled ? 'block':'none'}">
+            <div class="step-row" style="margin-bottom:8px;">
+              <div class="corner-btn ${room.notchCorner==='tl'?'active':''}" data-corner="tl">${t('cornerTL')}</div>
+              <div class="corner-btn ${room.notchCorner==='tr'?'active':''}" data-corner="tr">${t('cornerTR')}</div>
+            </div>
+            <div class="step-row" style="margin-bottom:10px;">
+              <div class="corner-btn ${room.notchCorner==='bl'?'active':''}" data-corner="bl">${t('cornerBL')}</div>
+              <div class="corner-btn ${room.notchCorner==='br'?'active':''}" data-corner="br">${t('cornerBR')}</div>
+            </div>
+            <div class="room-row">
+              <div class="field" style="margin-bottom:0;">
+                <input type="number" class="room-notch-width" inputmode="decimal" placeholder="${t('notchWidthPh')}" min="0" step="0.1" value="${room.notchWidth || ''}">
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <input type="number" class="room-notch-length" inputmode="decimal" placeholder="${t('notchLengthPh')}" min="0" step="0.1" value="${room.notchLength || ''}">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>${t('stepLabel')} <span class="hint">${t('cmUnit')}</span></label>
+          <div class="step-row">
+            ${[10,15,20,25,30].map(s => `<div class="step-btn ${room.step==s && !room.customStep ? 'active':''}" data-step="${s}">${s}</div>`).join('')}
+          </div>
+        </div>
+        <div class="room-row">
+          <div class="field">
+            <label>${t('customStepLabel')} <span class="hint">${t('cmUnit')}</span></label>
+            <input type="number" class="room-customstep" inputmode="decimal" placeholder="${t('customStepPh')}" min="1" step="0.5" value="${room.customStep}">
+          </div>
+        </div>
+        <div class="field">
+          <label>${t('patternLabel')}</label>
+          <div class="step-row">
+            <div class="pattern-btn ${room.pattern !== 'spiral' ? 'active':''}" data-pattern="meander">${t('patternMeander')}</div>
+            <div class="pattern-btn ${room.pattern === 'spiral' ? 'active':''}" data-pattern="spiral">${t('patternSpiral')}</div>
+          </div>
+        </div>
+        <div class="room-row">
+          <div class="field">
+            <label>${t('manifoldLabel')} <span class="hint">${t('mUnit')}</span></label>
+            <input type="number" class="room-manifold" inputmode="decimal" min="0" step="0.1" value="${room.manifold}">
+          </div>
+          <div class="field">
+            <label>${t('maxLoopLabel')} <span class="hint">${t('mUnit')}</span></label>
+            <input type="number" class="room-maxloop" inputmode="decimal" min="1" step="1" value="${room.maxLoop}">
+          </div>
+        </div>
+        <div class="room-sub" data-sub></div>
+        <div class="loops-legend" data-loops-legend></div>
+        <div class="diagram-toggle" data-diagram-toggle>
+          <span>${t('diagramToggleLabel')}</span>
+          <span class="chev" data-diagram-chev>▾</span>
+        </div>
+        <div class="diagram-wrap" data-diagram style="display:none;"></div>
+      `;
+      roomsContainer.appendChild(div);
+
+      div.querySelector('[data-diagram-toggle]').addEventListener('click', () => {
+        const wrap = div.querySelector('[data-diagram]');
+        const chev = div.querySelector('[data-diagram-chev]');
+        const isOpen = wrap.style.display !== 'none';
+        wrap.style.display = isOpen ? 'none' : 'block';
+        chev.classList.toggle('open', !isOpen);
+      });
+
+      div.querySelector('.room-name').addEventListener('input', (e) => {
+        room.name = e.target.value; persist();
+      });
+      div.querySelector('.room-area').addEventListener('input', (e) => {
+        room.area = e.target.value; persist(); calculate();
+      });
+      div.querySelector('.room-width').addEventListener('input', (e) => {
+        room.width = e.target.value;
+        syncDims(room);
+        persist();
+        const areaInput = div.querySelector('.room-area');
+        areaInput.disabled = !!(room.width && room.length);
+        if(room.width && room.length) areaInput.value = room.area;
+        div.querySelector('[data-notch-field]').style.display = (room.width && room.length) ? 'block' : 'none';
+        calculate();
+      });
+      div.querySelector('.room-length').addEventListener('input', (e) => {
+        room.length = e.target.value;
+        syncDims(room);
+        persist();
+        const areaInput = div.querySelector('.room-area');
+        areaInput.disabled = !!(room.width && room.length);
+        if(room.width && room.length) areaInput.value = room.area;
+        div.querySelector('[data-notch-field]').style.display = (room.width && room.length) ? 'block' : 'none';
+        calculate();
+      });
+      div.querySelector('.room-notch-toggle').addEventListener('change', (e) => {
+        room.notchEnabled = e.target.checked;
+        div.querySelector('[data-notch-details]').style.display = room.notchEnabled ? 'block' : 'none';
+        syncDims(room);
+        persist();
+        const areaInput = div.querySelector('.room-area');
+        if(room.width && room.length) areaInput.value = room.area;
+        calculate();
+      });
+      div.querySelectorAll('.corner-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          div.querySelectorAll('.corner-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          room.notchCorner = btn.dataset.corner;
+          persist(); calculate();
+        });
+      });
+      div.querySelector('.room-notch-width').addEventListener('input', (e) => {
+        room.notchWidth = e.target.value;
+        syncDims(room);
+        persist();
+        const areaInput = div.querySelector('.room-area');
+        if(room.width && room.length) areaInput.value = room.area;
+        calculate();
+      });
+      div.querySelector('.room-notch-length').addEventListener('input', (e) => {
+        room.notchLength = e.target.value;
+        syncDims(room);
+        persist();
+        const areaInput = div.querySelector('.room-area');
+        if(room.width && room.length) areaInput.value = room.area;
+        calculate();
+      });
+      div.querySelector('.room-customstep').addEventListener('input', (e) => {
+        room.customStep = e.target.value;
+        if(e.target.value){
+          div.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+        }
+        persist(); calculate();
+      });
+      div.querySelectorAll('.pattern-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          div.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          room.pattern = btn.dataset.pattern;
+          persist(); calculate();
+        });
+      });
+      div.querySelector('.room-manifold').addEventListener('input', (e) => {
+        room.manifold = parseFloat(e.target.value) || 0; persist(); calculate();
+      });
+      div.querySelector('.room-maxloop').addEventListener('input', (e) => {
+        room.maxLoop = parseFloat(e.target.value) || 0; persist(); calculate();
+      });
+      div.querySelectorAll('.step-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          div.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          room.step = parseFloat(btn.dataset.step);
+          room.customStep = '';
+          div.querySelector('.room-customstep').value = '';
+          persist(); calculate();
+        });
+      });
+      const delBtn = div.querySelector('[data-action="del"]');
+      if(delBtn){
+        delBtn.addEventListener('click', () => {
+          state.rooms = state.rooms.filter(r => r.id !== room.id);
+          persist(); renderRooms(); calculate();
+        });
+      }
+    });
+  }
+
+  function syncDims(room){
+    const w = parseFloat(room.width) || 0;
+    const l = parseFloat(room.length) || 0;
+    if(w > 0 && l > 0){
+      let area = w * l;
+      if(room.notchEnabled){
+        const nw = Math.min(parseFloat(room.notchWidth) || 0, w);
+        const nl = Math.min(parseFloat(room.notchLength) || 0, l);
+        area -= nw * nl;
+      }
+      room.area = Math.max(area, 0).toFixed(2);
+    }
+  }
+
+  document.getElementById('addRoomBtn').addEventListener('click', () => {
+    const suggested = state.diameter === 16 ? 90 : 110;
+    state.rooms.push({
+      id: cryptoId(),
+      name: '',
+      area: '', step: 15, customStep: '', manifold: 0, maxLoop: suggested,
+      width: '', length: '', pattern: 'meander', notchEnabled: false, notchCorner: 'tl', notchWidth: '', notchLength: ''
+    });
+    persist(); renderRooms(); calculate();
+  });
+
+  function escapeHtml(str){
+    return (str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function roomDisplayName(room, idx){
+    if(room.name && room.name.trim()) return room.name;
+    const i = idx !== undefined ? idx : state.rooms.findIndex(r => r.id === room.id);
+    return t('defaultRoomName') + ' ' + (i + 1);
+  }
+
+  // ---------- Calculation ----------
+  function calcRoom(room){
+    const area = parseFloat(room.area) || 0;
+    const step = parseFloat(room.customStep) || room.step || 15;
+    const stepM = step / 100;
+    const base = stepM > 0 ? area / stepM : 0;
+    const lead = (room.manifold || 0) * 2;
+    const marginLen = base * ((state.margin || 0) / 100);
+    const total = base + lead + marginLen;
+    const maxLoop = room.maxLoop || 0;
+    let loops = 1;
+    if(maxLoop > 0 && total > maxLoop) loops = Math.ceil(total / maxLoop);
+    return { area, step, base, lead, marginLen, total, loops, maxLoop };
+  }
+
+  function loopsWord(n){
+    if(state.lang === 'ru'){
+      const mod10 = n % 10;
+      const mod100 = n % 100;
+      if(mod100 >= 11 && mod100 <= 14) return t('loops_many');
+      if(mod10 === 1) return t('loop_one');
+      if(mod10 >= 2 && mod10 <= 4) return t('loops_few');
+      return t('loops_many');
+    }
+    if(state.lang === 'fr'){
+      return (n === 0 || n === 1) ? t('loop_one') : t('loops_many');
+    }
+    return n === 1 ? t('loop_one') : t('loops_many');
+  }
+
+  const LOOP_COLORS = ['#e8734a','#4ab68a','#5b8dd9','#c76bc9','#d9b23c','#e05c5c','#59c3c9'];
+
+  function loopsLegend(loops, totalLen){
+    if(loops <= 1) return '';
+    const per = totalLen / loops;
+    let html = '';
+    for(let i=0;i<loops;i++){
+      const c = LOOP_COLORS[i % LOOP_COLORS.length];
+      html += `<span class="loop-chip" style="--c:${c}">${t('contourLabel')} ${i+1}: ${per.toFixed(1)} ${t('mUnit')}</span>`;
+    }
+    return html;
+  }
+
+  function colorizeLoops(svgEl, loops){
+    const original = svgEl.querySelector('[data-pipe-path]');
+    if(!original) return;
+    if(loops <= 1){
+      original.setAttribute('stroke', 'var(--accent)');
+      return;
+    }
+    let total;
+    try { total = original.getTotalLength(); } catch(e) { return; }
+    if(!total) return;
+    const segLen = total / loops;
+    const samples = 30;
+    const clipAttr = original.getAttribute('clip-path');
+    const strokeWidth = original.getAttribute('stroke-width') || '2';
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    for(let i=0;i<loops;i++){
+      let d = '';
+      for(let s=0; s<=samples; s++){
+        const len = Math.min(i*segLen + (s/samples)*segLen, total);
+        const pt = original.getPointAtLength(len);
+        d += (s===0 ? 'M ' : 'L ') + pt.x.toFixed(1) + ' ' + pt.y.toFixed(1) + ' ';
+      }
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', LOOP_COLORS[i % LOOP_COLORS.length]);
+      p.setAttribute('stroke-width', strokeWidth);
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('stroke-linejoin', 'round');
+      p.setAttribute('opacity', '0.9');
+      if(clipAttr) p.setAttribute('clip-path', clipAttr);
+      g.appendChild(p);
+    }
+    original.style.display = 'none';
+    svgEl.appendChild(g);
+  }
+
+  function calculate(){
+    let grandTotal = 0;
+    let grandLoops = 0;
+    const breakdown = document.getElementById('roomsBreakdown');
+    breakdown.innerHTML = '';
+
+    state.rooms.forEach((room, idx) => {
+      const r = calcRoom(room);
+      grandTotal += r.total;
+      if(r.area > 0) grandLoops += r.loops;
+
+      // update room sub info + diagram
+      const cardEl = roomsContainer.children[idx];
+      if(cardEl){
+        const sub = cardEl.querySelector('[data-sub]');
+        if(sub){
+          const loopsNote = r.area > 0 ? ` · ${r.loops} ${loopsWord(r.loops)}` : '';
+          sub.innerHTML = `<span>${r.area>0? r.area.toFixed(1):'0'} ${t('areaUnit')} · ${t('stepLabel')} ${r.step} ${t('cmUnit')}</span> <b>${r.total.toFixed(1)} ${t('mUnit')}${loopsNote}</b>`;
+        }
+        const diagWrap = cardEl.querySelector('[data-diagram]');
+        if(diagWrap){
+          const notchInfo = room.notchEnabled ? {
+            enabled: true,
+            corner: room.notchCorner || 'tl',
+            width: parseFloat(room.notchWidth) || 0,
+            length: parseFloat(room.notchLength) || 0
+          } : null;
+          diagWrap.innerHTML = makeDiagram(r.step, room.pattern || 'meander', parseFloat(room.width) || 0, parseFloat(room.length) || 0, notchInfo, room.id);
+          const svgEl = diagWrap.querySelector('svg');
+          if(svgEl) colorizeLoops(svgEl, r.loops);
+        }
+        const legendEl = cardEl.querySelector('[data-loops-legend]');
+        if(legendEl){
+          legendEl.innerHTML = r.area > 0 ? loopsLegend(r.loops, r.total) : '';
+        }
+      }
+
+      if(r.area > 0){
+        const row = document.createElement('div');
+        row.className = 'breakdown-row';
+        const loopsNote = ` · ${r.loops} ${loopsWord(r.loops)}`;
+        row.innerHTML = `<span>${escapeHtml(roomDisplayName(room, idx))}</span><b>${r.total.toFixed(1)} ${t('mUnit')}${loopsNote}</b>`;
+        breakdown.appendChild(row);
+      }
+    });
+
+    document.getElementById('totalResult').innerHTML = grandTotal > 0
+      ? grandTotal.toFixed(1) + '<span>' + t('mUnit') + '</span>'
+      : '0<span>' + t('mUnit') + '</span>';
+
+    const loopsTotalEl = document.getElementById('loopsTotal');
+    if(grandTotal > 0 && grandLoops > 0){
+      loopsTotalEl.style.display = 'block';
+      loopsTotalEl.innerHTML = `${t('allTotal')} <b>${grandLoops} ${loopsWord(grandLoops)}</b>`;
+    } else {
+      loopsTotalEl.style.display = 'none';
+    }
+
+    const costEl = document.getElementById('costResult');
+    if(state.price > 0 && grandTotal > 0){
+      costEl.style.display = 'block';
+      costEl.textContent = '≈ ' + Math.round(grandTotal * state.price).toLocaleString('ru-RU') + ' ₽';
+    } else {
+      costEl.style.display = 'none';
+    }
+  }
+
+  function roomPolygonPoints(W, L, notch){
+    if(!notch || !notch.enabled || !(notch.width > 0) || !(notch.length > 0)){
+      return [[0,0],[W,0],[W,L],[0,L]];
+    }
+    const nw = Math.min(notch.width, W);
+    const nl = Math.min(notch.length, L);
+    switch(notch.corner){
+      case 'tl': return [[nw,0],[W,0],[W,L],[0,L],[0,nl],[nw,nl]];
+      case 'tr': return [[0,0],[W-nw,0],[W-nw,nl],[W,nl],[W,L],[0,L]];
+      case 'br': return [[0,0],[W,0],[W,L-nl],[W-nw,L-nl],[W-nw,L],[0,L]];
+      case 'bl': return [[0,0],[W,0],[W,L],[nw,L],[nw,L-nl],[0,L-nl]];
+      default: return [[0,0],[W,0],[W,L],[0,L]];
+    }
+  }
+
+  function makeDiagram(stepCm, pattern, widthM, lengthM, notch, roomId){
+    const hasDims = widthM > 0 && lengthM > 0;
+    const pad = 12;
+    let w, h;
+
+    if(hasDims){
+      const maxW = 300, maxH = 220;
+      const aspect = widthM / lengthM;
+      w = maxW; h = maxW / aspect;
+      if(h > maxH){ h = maxH; w = maxH * aspect; }
+      w = Math.max(w, 70); h = Math.max(h, 70);
+    } else {
+      w = 300; h = pattern === 'spiral' ? 200 : 90;
+    }
+
+    const innerW = w - pad*2, innerH = h - pad*2;
+    const hasNotch = hasDims && notch && notch.enabled && notch.width > 0 && notch.length > 0;
+
+    let notchPx = null;
+    if(hasNotch){
+      const scaleX = innerW / widthM;
+      const scaleY = innerH / lengthM;
+      notchPx = {
+        corner: notch.corner,
+        nw: Math.min(notch.width, widthM) * scaleX,
+        nl: Math.min(notch.length, lengthM) * scaleY
+      };
+    }
+
+    const x0 = pad, y0 = pad, x1 = pad + innerW, y1 = pad + innerH;
+
+    let contentSvg;
+    if(pattern === 'spiral'){
+      let insetPx;
+      if(hasDims){
+        const scale = innerW / (widthM * 100);
+        insetPx = Math.max(6, stepCm * scale);
+      } else {
+        const rings = Math.max(3, Math.min(9, Math.round(260 / stepCm)));
+        insetPx = Math.min(innerW, innerH) / 2 / (rings + 1);
+      }
+      contentSvg = spiralPath(x0, y0, x1, y1, insetPx, notchPx);
+    } else {
+      let lines;
+      if(hasDims){
+        lines = Math.max(2, Math.min(16, Math.round((widthM * 100) / stepCm)));
+      } else {
+        lines = Math.max(3, Math.min(10, Math.round(300 / stepCm)));
+      }
+      contentSvg = meanderPath(x0, y0, x1, y1, lines, notchPx);
+    }
+
+    let outlineSvg;
+    if(hasNotch){
+      const scaleX = innerW / widthM;
+      const scaleY = innerH / lengthM;
+      const poly = roomPolygonPoints(widthM, lengthM, notch)
+        .map(([mx,my]) => `${(pad + mx*scaleX).toFixed(1)},${(pad + my*scaleY).toFixed(1)}`)
+        .join(' ');
+      outlineSvg = `<polygon points="${poly}" fill="none" stroke="var(--line)" stroke-width="2"/>`;
+    } else {
+      outlineSvg = `<rect x="2" y="2" width="${w-4}" height="${h-4}" fill="none" stroke="var(--line)" stroke-width="2" rx="6"/>`;
+    }
+
+    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+      ${outlineSvg}
+      <path d="${contentSvg}" data-pipe-path fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    </svg>`;
+  }
+
+  // ---- Notch-aware geometry helpers ----
+  // Describes which y-band (for left/right notches) the cut-out occupies, and
+  // which side of the room it removes, so the patterns below can route around it.
+  function notchBands(corner, x0, y0, x1, y1, nw, nl){
+    if(corner === 'tl'){
+      const nx1 = x0 + nw, ny1 = y0 + nl;
+      return { nx0: x0, nx1, ny0: y0, ny1, side: 'left', band: [y0, ny1] };
+    }
+    if(corner === 'bl'){
+      const nx1 = x0 + nw, ny0b = y1 - nl;
+      return { nx0: x0, nx1, ny0: ny0b, ny1: y1, side: 'left', band: [ny0b, y1] };
+    }
+    if(corner === 'tr'){
+      const nx0b = x1 - nw, ny1 = y0 + nl;
+      return { nx0: nx0b, nx1: x1, ny0: y0, ny1, side: 'right', band: [y0, ny1] };
+    }
+    if(corner === 'br'){
+      const nx0b = x1 - nw, ny0b = y1 - nl;
+      return { nx0: nx0b, nx1: x1, ny0: ny0b, ny1: y1, side: 'right', band: [ny0b, y1] };
+    }
+    return null;
+  }
+
+  function rowBoundsForNotch(y, x0, x1, notch){
+    if(!notch) return { left: x0, right: x1 };
+    const inBand = y > notch.band[0] + 0.01 && y < notch.band[1] - 0.01;
+    if(!inBand) return { left: x0, right: x1 };
+    if(notch.side === 'left') return { left: notch.nx1, right: x1 };
+    return { left: x0, right: notch.nx0 };
+  }
+
+  // meander (serpentine): each horizontal pass uses the real width available at
+  // that height, so it steps around a corner notch instead of being cut off.
+  function meanderPath(x0, y0, x1, y1, lines, notchPx){
+    const notch = notchPx ? notchBands(notchPx.corner, x0, y0, x1, y1, notchPx.nw, notchPx.nl) : null;
+    const rowBoundsFn = (y) => rowBoundsForNotch(y, x0, x1, notch);
+    const gap = (y1 - y0) / ((lines - 1) || 1);
+    let pts = [];
+    let y = y0, goingRight = true;
+    let b = rowBoundsFn(y);
+    let curX = goingRight ? b.left : b.right;
+    pts.push([curX, y]);
+    for(let i=0;i<lines;i++){
+      b = rowBoundsFn(y);
+      const targetX = goingRight ? b.right : b.left;
+      pts.push([targetX, y]);
+      curX = targetX;
+      if(i < lines - 1){
+        const newY = y + gap;
+        const bNew = rowBoundsFn(newY);
+        const bOld = rowBoundsFn(y);
+        let safeX;
+        if(goingRight){ safeX = Math.min(curX, bNew.right, bOld.right); }
+        else { safeX = Math.max(curX, bNew.left, bOld.left); }
+        if(Math.abs(curX - safeX) > 0.5) pts.push([safeX, y]);
+        pts.push([safeX, newY]);
+        const trueEdge = goingRight ? bNew.right : bNew.left;
+        if(Math.abs(trueEdge - safeX) > 0.5) pts.push([trueEdge, newY]);
+        curX = trueEdge;
+        y = newY;
+      }
+      goingRight = !goingRight;
+    }
+    let path = '';
+    pts.forEach((pt, i) => {
+      path += (i === 0 ? 'M ' : 'L ') + pt[0].toFixed(1) + ' ' + pt[1].toFixed(1) + ' ';
+    });
+    return path;
+  }
+
+  function ringSpiralPoints(x0, y0, x1, y1, ringStep, startInset){
+    let left = x0 + startInset, right = x1 - startInset, top = y0 + startInset, bottom = y1 - startInset;
+    let pts = [[left, top]];
+    let iterations = 0;
+    while(left < right && top < bottom && iterations < 40){
+      pts.push([right, top]);
+      pts.push([right, bottom]);
+      left += ringStep;
+      pts.push([left, bottom]);
+      top += ringStep;
+      pts.push([left, top]);
+      right -= ringStep;
+      bottom -= ringStep;
+      iterations++;
+    }
+    return pts;
+  }
+
+  function spiralPoints(x0, y0, x1, y1, step){
+    const inward = ringSpiralPoints(x0, y0, x1, y1, step * 2, 0);
+    const outward = ringSpiralPoints(x0, y0, x1, y1, step * 2, step).reverse();
+    // The inward pass (even lanes) and outward pass (odd lanes) meet at two
+    // different, diagonally-offset center points. Joining them directly draws
+    // a stray diagonal "kink" at the middle of the spiral — add one
+    // axis-aligned elbow so the pipe only ever turns at right angles here too.
+    const lastIn = inward[inward.length - 1];
+    const firstOut = outward[0];
+    const bridge = [lastIn[0], firstOut[1]];
+    return inward.concat([bridge]).concat(outward);
+  }
+
+  // splits the L-shaped room (rectangle minus one corner notch) into two plain
+  // rectangles that share a boundary corner, so each half can get its own
+  // clean double-spiral without ever crossing into the cut-out.
+  function splitRoomForNotch(x0, y0, x1, y1, corner, nw, nl){
+    if(corner === 'tl'){
+      const nx1 = x0+nw, ny1 = y0+nl;
+      return { rect1:{x0:nx1,y0:y0,x1:x1,y1:y1}, rect2:{x0:x0,y0:ny1,x1:nx1,y1:y1}, corner:[nx1,ny1] };
+    }
+    if(corner === 'tr'){
+      const nx0b = x1-nw, ny1 = y0+nl;
+      return { rect1:{x0:x0,y0:y0,x1:nx0b,y1:y1}, rect2:{x0:nx0b,y0:ny1,x1:x1,y1:y1}, corner:[nx0b,ny1] };
+    }
+    if(corner === 'bl'){
+      const nx1 = x0+nw, ny0b = y1-nl;
+      return { rect1:{x0:x0,y0:y0,x1:x1,y1:ny0b}, rect2:{x0:nx1,y0:ny0b,x1:x1,y1:y1}, corner:[nx1,ny0b] };
+    }
+    if(corner === 'br'){
+      const nx0b = x1-nw, ny0b = y1-nl;
+      return { rect1:{x0:x0,y0:y0,x1:x1,y1:ny0b}, rect2:{x0:x0,y0:ny0b,x1:nx0b,y1:y1}, corner:[nx0b,ny0b] };
+    }
+    return null;
+  }
+
+  function spiralPath(x0, y0, x1, y1, step, notchPx){
+    let pts;
+    if(!notchPx || !notchPx.corner || !(notchPx.nw > 0) || !(notchPx.nl > 0)){
+      pts = spiralPoints(x0, y0, x1, y1, step);
+    } else {
+      const split = splitRoomForNotch(x0, y0, x1, y1, notchPx.corner, notchPx.nw, notchPx.nl);
+      const r1 = split.rect1, r2 = split.rect2;
+      const minSize = step * 2;
+      if((r1.x1-r1.x0) < minSize || (r1.y1-r1.y0) < minSize || (r2.x1-r2.x0) < minSize || (r2.y1-r2.y0) < minSize){
+        // notch too large relative to spacing to cleanly subdivide — fall back
+        // to spiralling only the larger remaining rectangle.
+        const big = (r1.x1-r1.x0)*(r1.y1-r1.y0) >= (r2.x1-r2.x0)*(r2.y1-r2.y0) ? r1 : r2;
+        pts = spiralPoints(big.x0, big.y0, big.x1, big.y1, step);
+      } else {
+        const p1 = spiralPoints(r1.x0, r1.y0, r1.x1, r1.y1, step);
+        const p2 = spiralPoints(r2.x0, r2.y0, r2.x1, r2.y1, step);
+        pts = p1.concat([split.corner]).concat(p2);
+      }
+    }
+    let path = '';
+    pts.forEach((pt, i) => {
+      path += (i === 0 ? 'M ' : 'L ') + pt[0].toFixed(1) + ' ' + pt[1].toFixed(1) + ' ';
+    });
+    return path;
+  }
+
+  function persist(){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  }
+
+  // ---------- History ----------
+  function getHistory(){
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch(e){ return []; }
+  }
+  function setHistory(list){
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); } catch(e){}
+  }
+
+  const LOCALE_MAP = { ru: 'ru-RU', en: 'en-US', tr: 'tr-TR', fr: 'fr-FR', es: 'es-ES' };
+
+  function renderHistory(){
+    const list = getHistory();
+    const container = document.getElementById('historyList');
+    const countEl = document.getElementById('historyCount');
+    if(!list.length){
+      container.innerHTML = `<div class="empty-note">${t('historyEmpty')}</div>`;
+      countEl.style.display = 'none';
+      return;
+    }
+    countEl.style.display = 'inline-flex';
+    countEl.textContent = list.length;
+    container.innerHTML = '';
+    const locale = LOCALE_MAP[state.lang] || 'ru-RU';
+    list.slice().reverse().forEach((item) => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      const date = new Date(item.date);
+      const dateStr = date.toLocaleDateString(locale) + ' ' + date.toLocaleTimeString(locale, {hour:'2-digit', minute:'2-digit'});
+      const nameStr = escapeHtml(item.name || t('historyNoName'));
+      div.innerHTML = `
+        <div class="history-info">
+          <b>${nameStr}</b><br>${item.total.toFixed(1)} ${t('mUnit')} · ${item.roomsCount} ${t('roomWord')}<br>${dateStr}
+        </div>
+        <div class="history-actions">
+          <button data-action="load">${t('historyOpenBtn')}</button>
+          <button data-action="del" class="del">✕</button>
+        </div>
+      `;
+      div.querySelector('[data-action="load"]').addEventListener('click', () => {
+        state = JSON.parse(JSON.stringify(item.state));
+        if(!state.lang) state.lang = localStorage.getItem(LANG_KEY) || 'ru';
+        persist();
+        document.getElementById('companyInput').value = state.company || '';
+        document.getElementById('phoneInput').value = state.phone || '';
+        document.getElementById('margin').value = state.margin;
+        document.getElementById('price').value = state.price || '';
+        document.querySelectorAll('.diam-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.diam) === state.diameter));
+        renderRooms();
+        calculate();
+        showToast(t('toastCalcLoaded'));
+        window.scrollTo({top:0, behavior:'smooth'});
+      });
+      div.querySelector('[data-action="del"]').addEventListener('click', () => {
+        if(!window.confirm(t('confirmDeleteProject'))) return;
+        const updated = getHistory().filter(h => h.id !== item.id);
+        setHistory(updated);
+        renderHistory();
+        showToast(t('toastProjectDeleted'));
+      });
+      container.appendChild(div);
+    });
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    let grandTotal = 0;
+    state.rooms.forEach(room => { grandTotal += calcRoom(room).total; });
+    if(grandTotal <= 0){
+      showToast(t('toastFillArea'));
+      return;
+    }
+    const list = getHistory();
+    const defaultName = t('defaultProjectName') + ' ' + (list.length + 1);
+    const name = window.prompt(t('promptProjectName'), defaultName) || defaultName;
+    list.push({
+      id: cryptoId(),
+      date: Date.now(),
+      name: name,
+      total: grandTotal,
+      roomsCount: state.rooms.length,
+      state: JSON.parse(JSON.stringify(state))
+    });
+    // cap history at 30 entries
+    while(list.length > 30) list.shift();
+    setHistory(list);
+    renderHistory();
+    showToast(t('toastCalcSaved'));
+  });
+
+  document.getElementById('historyToggle').addEventListener('click', () => {
+    const box = document.getElementById('historyBox');
+    const chev = document.getElementById('historyChev');
+    box.classList.toggle('open');
+    chev.classList.toggle('open');
+  });
+
+  // ---------- Share ----------
+  function gatherShareData(){
+    let grandTotal = 0;
+    let lines = [];
+    state.rooms.forEach((room, idx) => {
+      const r = calcRoom(room);
+      grandTotal += r.total;
+      if(r.area > 0) lines.push(`${roomDisplayName(room, idx)}: ${r.total.toFixed(1)} ${t('mUnit')} (${r.area} ${t('areaUnit')}, ${t('stepLabel')} ${r.step} ${t('cmUnit')})`);
+    });
+    return { grandTotal, lines };
+  }
+
+  document.getElementById('shareTextBtn').addEventListener('click', async () => {
+    const { grandTotal, lines } = gatherShareData();
+    if(grandTotal <= 0){
+      showToast(t('toastFillArea'));
+      return;
+    }
+    let text = `${t('shareTitle')}\n\n${lines.join('\n')}\n\n${t('shareTotalLabel')} ${grandTotal.toFixed(1)} ${t('mUnit')}`;
+    if(state.price > 0){
+      text += `\n${t('shareCostLabel')} ${Math.round(grandTotal * state.price).toLocaleString(LOCALE_MAP[state.lang] || 'ru-RU')} ₽`;
+    }
+    if(state.company){
+      text += `\n\n${state.company}${state.phone ? ' · ' + state.phone : ''}`;
+    }
+
+    if(navigator.share){
+      try {
+        await navigator.share({ title: t('shareTitle'), text });
+      } catch(e){}
+    } else if(navigator.clipboard){
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast(t('toastCopied'));
+      } catch(e){
+        showToast(t('toastCopyFailed'));
+      }
+    }
+  });
+
+  document.getElementById('shareImageBtn').addEventListener('click', async () => {
+    const { grandTotal, lines } = gatherShareData();
+    if(grandTotal <= 0){
+      showToast(t('toastFillArea'));
+      return;
+    }
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const bg = isLight ? '#ffffff' : '#16232f';
+    const textColor = isLight ? '#241f18' : '#eaf1f6';
+    const dimColor = isLight ? '#7a7266' : '#93a7b5';
+    const accent = '#e8734a';
+
+    const width = 720;
+    const lineHeight = 32;
+    let extraLines = 3;
+    if(state.price > 0) extraLines += 1;
+    if(state.company) extraLines += 1;
+    const height = 130 + lines.length * lineHeight + extraLines * lineHeight;
+
+    const scale = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = accent;
+    ctx.fillRect(0, 0, width, 6);
+
+    let y = 48;
+    ctx.fillStyle = textColor;
+    ctx.font = 'bold 26px sans-serif';
+    ctx.fillText(t('shareTitle'), 30, y);
+    y += 26;
+    ctx.strokeStyle = isLight ? '#e0dbd0' : '#2a3d4d';
+    ctx.beginPath(); ctx.moveTo(30, y); ctx.lineTo(width - 30, y); ctx.stroke();
+    y += 38;
+
+    ctx.font = '18px sans-serif';
+    lines.forEach(line => {
+      ctx.fillStyle = textColor;
+      ctx.fillText(line, 30, y);
+      y += lineHeight;
+    });
+
+    y += 8;
+    ctx.font = 'bold 24px sans-serif';
+    ctx.fillStyle = accent;
+    ctx.fillText(t('shareTotalLabel') + ' ' + grandTotal.toFixed(1) + ' ' + t('mUnit'), 30, y);
+    y += lineHeight;
+
+    if(state.price > 0){
+      ctx.font = '18px sans-serif';
+      ctx.fillStyle = textColor;
+      ctx.fillText(t('shareCostLabel') + ' ' + Math.round(grandTotal * state.price).toLocaleString(LOCALE_MAP[state.lang] || 'ru-RU') + ' ₽', 30, y);
+      y += lineHeight;
+    }
+
+    if(state.company){
+      y += 6;
+      ctx.font = '15px sans-serif';
+      ctx.fillStyle = dimColor;
+      ctx.fillText(state.company + (state.phone ? ' · ' + state.phone : ''), 30, y);
+    }
+
+    canvas.toBlob(async (blob) => {
+      if(!blob) { showToast(t('toastImageFailed')); return; }
+      const file = new File([blob], 'thermoline-calc.png', { type: 'image/png' });
+      if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
+        try {
+          await navigator.share({ files: [file], title: t('shareTitle') });
+        } catch(e){}
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'thermoline-calc.png'; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 3000);
+        showToast(t('toastImageSaved'));
+      }
+    }, 'image/png');
+  });
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // ---------- Init ----------
+  document.documentElement.setAttribute('lang', state.lang);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+  document.getElementById('langSelect').value = state.lang;
+
+  document.querySelectorAll('.diam-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.diam) === state.diameter);
+  });
+  renderRooms();
+  calculate();
+  renderHistory();
+
+  // ---------- PWA install ----------
+  let deferredPrompt;
+  const banner = document.getElementById('installBanner');
+  const installBtn = document.getElementById('installBtn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    banner.classList.add('show');
+  });
+
+  installBtn?.addEventListener('click', async () => {
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    banner.classList.remove('show');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    banner.classList.remove('show');
+  });
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+  }
+</script>
+
+</body>
+</html>
