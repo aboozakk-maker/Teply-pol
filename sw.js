@@ -1,4 +1,4 @@
-const CACHE_NAME = 'teply-pol-v14';
+const CACHE_NAME = 'teply-pol-v15';
 const ASSETS = [
   './',
   './index.html',
